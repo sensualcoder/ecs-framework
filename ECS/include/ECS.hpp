@@ -3,6 +3,7 @@
 
 #include "Component.hpp"
 #include "Entity.hpp"
+#include "Event/Event.hpp"
 #include "System.hpp"
 
 namespace ecs

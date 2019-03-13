@@ -3,13 +3,22 @@
 #include <string>
 
 #include "ECS.hpp"
-#include "Event/IEventListener.hpp"
 
-class MessageComponent : public ecs::Component<MessageComponent>
+struct MessageEvent : public ecs::event::Event<MessageEvent>
+{
+    MessageEvent(std::string message) : message_(message) {}
+
+    std::string message_;
+};
+
+class MessageComponent 
+    : public ecs::Component<MessageComponent>, 
+      public ecs::event::ISubject<MessageEvent>
 {
     public:
         void SendMessage(const std::string message) const
         {
+            this->Notify(MessageEvent { message } );
         }
 };
 
@@ -30,9 +39,14 @@ class Messager : public ecs::Entity<Messager>
         MessageComponent* messagecomponent_;
 };
 
-class MessageSystem : public ecs::System<MessageSystem>, protected ecs::event::IEventListener
+class MessageSystem : public ecs::System<MessageSystem>, public ecs::event::IObserver<MessageEvent>
 {
     public:
+        void OnNotify(const MessageEvent& event) const
+        {
+            this->OnSendMessage(event.message_);
+        }
+
         void OnSendMessage(const std::string message) const
         {
             printf("%s\n", message.c_str() );
@@ -41,14 +55,19 @@ class MessageSystem : public ecs::System<MessageSystem>, protected ecs::event::I
 
 int main()
 {
-    std::unique_ptr<MessageComponent> ctest = std::make_unique<MessageComponent>();
-    std::unique_ptr<Messager> etest = std::make_unique<Messager>(ctest.get() );
+    // Init systems
     std::unique_ptr<MessageSystem> stest = std::make_unique<MessageSystem>();
 
-    ecs::ECS engine;
+    // Init components
+    std::unique_ptr<MessageComponent> ctest = std::make_unique<MessageComponent>();
+    ctest->AddObserver(stest.get() );
 
+    // Init entities
+    std::unique_ptr<Messager> etest = std::make_unique<Messager>(ctest.get() );
+
+    // Execute
     std::string message = "Hello, world!";
-    etest->Say(message);
+    etest->Say("etest says: " + message);
 
     return 0;
 }

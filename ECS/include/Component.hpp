@@ -2,6 +2,7 @@
 #define COMPONENT_HPP
 
 #include "IComponent.hpp"
+#include "Event/ISubject.hpp"
 
 namespace ecs
 {
