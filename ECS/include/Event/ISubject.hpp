@@ -8,16 +8,15 @@
 
 namespace ecs::event
 {
-    template<typename T>
     class ISubject
     {
         public:
-            void AddObserver(IObserver<T>* observer)
+            void AddObserver(IObserver* observer)
             {
                 observers_.push_back(observer);
             }
 
-            void Notify(const T& event) const
+            void Notify(IEvent* event) const
             {
                 for(auto obs : observers_)
                 {
@@ -26,7 +25,7 @@ namespace ecs::event
             }
 
         private:
-            std::vector<IObserver<T>*> observers_;
+            std::vector<IObserver*> observers_;
     };
 }
 

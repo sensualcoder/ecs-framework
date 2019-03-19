@@ -1,12 +1,13 @@
 #ifndef I_EVENT_HPP
 #define I_EVENT_HPP
 
+#include "Defines.hpp"
+
 namespace ecs::event
 {
-    class IEvent
+    struct IEvent
     {
-        public:
-            virtual ~IEvent() {}
+        virtual TypeId GetEventType() const = 0;
     };
 }
 

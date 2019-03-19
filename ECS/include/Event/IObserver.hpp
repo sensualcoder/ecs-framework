@@ -5,11 +5,10 @@
 
 namespace ecs::event
 {
-    template<typename T>
     class IObserver
     {
         public:
-            virtual void OnNotify(const T&) const = 0;
+            virtual void OnNotify(IEvent* event) = 0;
     };
 }
 

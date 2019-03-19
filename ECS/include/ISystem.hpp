@@ -1,12 +1,14 @@
 #ifndef I_SYSTEM_HPP
 #define I_SYSTEM_HPP
 
+#include "Defines.hpp"
+
 namespace ecs
 {
     class ISystem
     {
         public:
-            virtual ~ISystem() {}
+            virtual TypeId GetSystemTypeId() const = 0;
     };
 }
 

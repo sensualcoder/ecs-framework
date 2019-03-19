@@ -4,31 +4,60 @@
 
 #include "ECS.hpp"
 
-struct MessageEvent : public ecs::event::Event<MessageEvent>
+enum EventType
 {
-    MessageEvent(std::string message) : message_(message) {}
+    INVALID_EVENT = 0,
+    MESSAGE_EVENT
+};
 
-    std::string message_;
+enum ComponentType
+{
+    INVALID_COMPONENT = 0,
+    MESSAGE_COMPONENT
+};
+
+enum EntityType
+{
+    INVALID_ENTITY = 0,
+    MESSAGER
+};
+
+enum SystemType
+{
+    INVALID_SYSTEM = 0,
+    MESSAGE_SYSTEM
+};
+
+struct MessageEvent 
+    : public ecs::event::Event<MessageEvent>
+{
+    MessageEvent(std::string message) 
+        : message_(message), Event(EventType::MESSAGE_EVENT) {}
+
+    const std::string message_;
 };
 
 class MessageComponent 
     : public ecs::Component<MessageComponent>, 
-      public ecs::event::ISubject<MessageEvent>
+      public ecs::event::ISubject
 {
     public:
+        MessageComponent() : Component(ComponentType::MESSAGE_COMPONENT) {}
+
         void SendMessage(const std::string message) const
         {
-            this->Notify(MessageEvent { message } );
+            std::unique_ptr<MessageEvent> event = std::make_unique<MessageEvent>(message);
+
+            this->Notify(event.get() );
         }
 };
 
-class Messager : public ecs::Entity<Messager>
+class Messager 
+    : public ecs::Entity<Messager>
 {
     public:
         Messager(MessageComponent* messagecomponent)
-            : messagecomponent_(messagecomponent)
-        {
-        }
+            : messagecomponent_(messagecomponent), Entity(EntityType::MESSAGER) {}
 
         void Say(const std::string message) const
         {
@@ -39,17 +68,19 @@ class Messager : public ecs::Entity<Messager>
         MessageComponent* messagecomponent_;
 };
 
-class MessageSystem : public ecs::System<MessageSystem>, public ecs::event::IObserver<MessageEvent>
+class MessageSystem 
+    : public ecs::System<MessageSystem>, 
+      public ecs::event::IObserver
 {
     public:
-        void OnNotify(const MessageEvent& event) const
-        {
-            this->OnSendMessage(event.message_);
-        }
+        MessageSystem() : System(SystemType::MESSAGE_SYSTEM) {}
 
-        void OnSendMessage(const std::string message) const
+        void OnNotify(ecs::event::IEvent* event)
         {
-            printf("%s\n", message.c_str() );
+            if(event->GetEventType() == EventType::MESSAGE_EVENT)
+            {
+                printf("%s\n", static_cast<MessageEvent*>(event)->message_.c_str() );
+            }
         }
 };
 
@@ -67,7 +98,7 @@ int main()
 
     // Execute
     std::string message = "Hello, world!";
-    etest->Say("etest says: " + message);
+    etest->Say(message);
 
     return 0;
 }

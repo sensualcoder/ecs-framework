@@ -5,9 +5,18 @@
 
 namespace ecs::event
 {
+    using EventTypeId = TypeId;
+
     template<typename T>
     class Event : public IEvent
     {
+        public:
+            Event(EventTypeId eventtypeid) : eventtypeid_(eventtypeid) {}
+
+            inline EventTypeId GetEventType() const { return eventtypeid_; }
+
+        private:
+            EventTypeId eventtypeid_;
     };
 }
 

@@ -6,9 +6,18 @@
 
 namespace ecs
 {
+    using SystemTypeId = TypeId;
+
     template<typename T>
     class System : public ISystem
     {
+        public:
+            System(SystemTypeId systemtypeid) : systemtypeid_(systemtypeid) {}
+
+            inline SystemTypeId GetSystemTypeId() const { return systemtypeid_; }
+
+        private:
+            SystemTypeId systemtypeid_;
     };
 }
 
