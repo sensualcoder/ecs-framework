@@ -6,7 +6,7 @@
 #include "IEvent.hpp"
 #include "IObserver.hpp"
 
-namespace ecs::event
+namespace ecs
 {
     class ISubject
     {
@@ -16,7 +16,23 @@ namespace ecs::event
                 observers_.push_back(observer);
             }
 
-            void Notify(IEvent* event) const
+            void RemoveObserver(IObserver* observer)
+            {
+                for(auto it = observers_.begin(); it != observers_.end(); it++)
+                {
+                    if(*it == observer)
+                    {
+                        observers_.erase(it);
+                    }
+                }
+            }
+
+            void RemoveAllObservers()
+            {
+                observers_.clear();
+            }
+
+            void Notify(IEvent& event) const
             {
                 for(auto obs : observers_)
                 {

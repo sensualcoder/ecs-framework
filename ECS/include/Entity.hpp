@@ -11,12 +11,12 @@ namespace ecs
     class Entity : public IEntity
     {
         public:
-            Entity(EntityTypeId entitytypeid) : entitytypeid_(entitytypeid) {}
+            Entity(EntityId entityid) 
+                : IEntity(entityid)
+            {
+            }
 
-            inline EntityTypeId GetEntityTypeId() const { return entitytypeid_; }
-
-        private:
-            EntityTypeId entitytypeid_;
+            static const EntityTypeId ENTITY_TYPE_ID;
     };
 }
 

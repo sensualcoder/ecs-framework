@@ -2,7 +2,6 @@
 #define COMPONENT_HPP
 
 #include "IComponent.hpp"
-#include "Event/ISubject.hpp"
 
 namespace ecs
 {
@@ -12,12 +11,12 @@ namespace ecs
     class Component : public IComponent
     {
         public:
-            Component(ComponentTypeId componenttypeid) : componenttypeid_(componenttypeid) {}
+            Component(ComponentId componentid) 
+                : IComponent(componentid) 
+            {
+            }
 
-            inline ComponentTypeId GetComponentTypeId() const { return componenttypeid_; }
-
-        private:
-            const ComponentTypeId componenttypeid_;
+            static const ComponentTypeId COMPONENT_TYPE_ID;
     };
 }
 

@@ -10,45 +10,53 @@ enum EventType
     MESSAGE_EVENT
 };
 
-enum ComponentType
+class MessageEvent 
+    : public ecs::Event<MessageEvent>
 {
-    INVALID_COMPONENT = 0,
-    MESSAGE_COMPONENT
+    public:
+        MessageEvent(std::string message) 
+            : Event(EventType::MESSAGE_EVENT),
+                message_(message)
+        {
+        }
+
+        const std::string message_;
 };
 
-enum EntityType
+class MessageSystem 
+    : public ecs::System<MessageSystem>, 
+      public ecs::IObserver
 {
-    INVALID_ENTITY = 0,
-    MESSAGER
-};
+    public:
+        MessageSystem(ecs::SystemId systemid) 
+            : System(systemid) 
+        {
+        }
 
-enum SystemType
-{
-    INVALID_SYSTEM = 0,
-    MESSAGE_SYSTEM
-};
-
-struct MessageEvent 
-    : public ecs::event::Event<MessageEvent>
-{
-    MessageEvent(std::string message) 
-        : message_(message), Event(EventType::MESSAGE_EVENT) {}
-
-    const std::string message_;
+        void OnNotify(ecs::IEvent& event)
+        {
+            if(event.GetEventType() == EventType::MESSAGE_EVENT)
+            {
+                printf("%s\n", static_cast<MessageEvent*>(&event)->message_.c_str() );
+            }
+        }
 };
 
 class MessageComponent 
     : public ecs::Component<MessageComponent>, 
-      public ecs::event::ISubject
+      public ecs::ISubject
 {
     public:
-        MessageComponent() : Component(ComponentType::MESSAGE_COMPONENT) {}
+        MessageComponent(ecs::ComponentId componentid) 
+            : Component(componentid) 
+        {
+        }
 
         void SendMessage(const std::string message) const
         {
-            std::unique_ptr<MessageEvent> event = std::make_unique<MessageEvent>(message);
+            MessageEvent event { message };
 
-            this->Notify(event.get() );
+            this->Notify(event);
         }
 };
 
@@ -56,8 +64,14 @@ class Messager
     : public ecs::Entity<Messager>
 {
     public:
-        Messager(MessageComponent* messagecomponent)
-            : messagecomponent_(messagecomponent), Entity(EntityType::MESSAGER) {}
+        Messager(ecs::EntityId entityid)
+            : Entity(entityid)
+                
+        {
+            messagecomponent_ = ecs::ECS::Get()
+                                    ->GetComponentManager()
+                                    ->AddComponent<MessageComponent>(this->GetEntityId() );
+        }
 
         void Say(const std::string message) const
         {
@@ -68,37 +82,31 @@ class Messager
         MessageComponent* messagecomponent_;
 };
 
-class MessageSystem 
-    : public ecs::System<MessageSystem>, 
-      public ecs::event::IObserver
-{
-    public:
-        MessageSystem() : System(SystemType::MESSAGE_SYSTEM) {}
-
-        void OnNotify(ecs::event::IEvent* event)
-        {
-            if(event->GetEventType() == EventType::MESSAGE_EVENT)
-            {
-                printf("%s\n", static_cast<MessageEvent*>(event)->message_.c_str() );
-            }
-        }
-};
-
 int main()
 {
-    // Init systems
-    std::unique_ptr<MessageSystem> stest = std::make_unique<MessageSystem>();
+    auto ecs = ecs::ECS::Get();
+    auto cm = ecs->GetComponentManager();
+    auto em = ecs->GetEntityManager();
+    auto sm = ecs->GetSystemManager();
 
-    // Init components
-    std::unique_ptr<MessageComponent> ctest = std::make_unique<MessageComponent>();
-    ctest->AddObserver(stest.get() );
+    // Init systems
+    auto stest = sm->AddSystem<MessageSystem>();
 
     // Init entities
-    std::unique_ptr<Messager> etest = std::make_unique<Messager>(ctest.get() );
+    auto etest = em->CreateEntity<Messager>();
+
+    // Init components
+    auto ctest = cm->GetComponent<MessageComponent>(etest->GetEntityId() );
+    ctest->AddObserver(stest);
 
     // Execute
     std::string message = "Hello, world!";
     etest->Say(message);
+
+    // Cleanup
+    em->DestroyAllEntities();
+    cm->RemoveAllComponents();
+    sm->RemoveAllSystems();
 
     return 0;
 }

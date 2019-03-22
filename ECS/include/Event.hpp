@@ -3,7 +3,7 @@
 
 #include "IEvent.hpp"
 
-namespace ecs::event
+namespace ecs
 {
     using EventTypeId = TypeId;
 
@@ -11,9 +11,15 @@ namespace ecs::event
     class Event : public IEvent
     {
         public:
-            Event(EventTypeId eventtypeid) : eventtypeid_(eventtypeid) {}
+            Event(EventTypeId eventtypeid) 
+                : eventtypeid_(eventtypeid) 
+            {
+            }
 
-            inline EventTypeId GetEventType() const { return eventtypeid_; }
+            inline EventTypeId GetEventType() const 
+            { 
+                return eventtypeid_; 
+            }
 
         private:
             EventTypeId eventtypeid_;

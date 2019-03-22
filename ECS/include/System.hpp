@@ -1,7 +1,6 @@
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
 
-#include "Event/IObserver.hpp"
 #include "ISystem.hpp"
 
 namespace ecs
@@ -12,12 +11,12 @@ namespace ecs
     class System : public ISystem
     {
         public:
-            System(SystemTypeId systemtypeid) : systemtypeid_(systemtypeid) {}
+            System(SystemId systemid) 
+                : ISystem(systemid) 
+            {
+            }
 
-            inline SystemTypeId GetSystemTypeId() const { return systemtypeid_; }
-
-        private:
-            SystemTypeId systemtypeid_;
+            static const SystemTypeId SYSTEM_TYPE_ID;
     };
 }
 

@@ -8,7 +8,20 @@ namespace ecs
     class IEntity
     {
         public:
-            virtual TypeId GetEntityTypeId() const = 0;
+            IEntity(EntityId entityid) 
+                : entityid_(entityid) 
+            {
+            }
+
+            virtual ~IEntity() {}
+
+            inline EntityId GetEntityId() 
+            { 
+                return entityid_; 
+            }
+
+        private:
+            const EntityId entityid_;
     };
 }
 

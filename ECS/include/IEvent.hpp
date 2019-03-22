@@ -3,7 +3,7 @@
 
 #include "Defines.hpp"
 
-namespace ecs::event
+namespace ecs
 {
     struct IEvent
     {

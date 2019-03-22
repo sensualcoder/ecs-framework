@@ -8,7 +8,20 @@ namespace ecs
     class IComponent
     {
         public:
-            virtual TypeId GetComponentTypeId() const = 0;
+            IComponent(ComponentId componentid)
+                : componentid_(componentid)
+            {
+            }
+
+            virtual ~IComponent() {}
+
+            inline ComponentId GetComponentId() const
+            {
+                return componentid_;
+            }
+
+        private:
+            const ComponentId componentid_;
     };
 }
 
