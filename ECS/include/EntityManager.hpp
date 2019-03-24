@@ -2,7 +2,7 @@
 #define ENTITY_MANAGER_HPP
 
 #include <memory>
-#include <vector>
+#include <unordered_map>
 
 #include "IEntity.hpp"
 
@@ -13,13 +13,23 @@ namespace ecs
     class EntityManager
     {
         public:
+            template<typename T>
+            T* GetEntity(EntityId entityid)
+            {
+                auto it = entities_.find(entityid);
+
+                return it != entities_.end()
+                        ? (T*)it->second.get()
+                        : nullptr;
+            }
+
             template<typename T, typename... ARGS>
             T* CreateEntity(ARGS&&... args)
             {
                 EntityId entityid = this->GetEntityId();
 
                 IEntity* entity = new T(entityid, std::forward<ARGS>(args)...);
-                entities_.push_back(Entity_Ptr(entity) );
+                entities_[entityid] = Entity_Ptr(entity);
 
                 return static_cast<T*>(entity);
             }
@@ -27,12 +37,11 @@ namespace ecs
             template<typename T>
             void DestroyEntity(EntityId entityid)
             {
-                for(auto e = entities_.begin(); e != entities_.end(); e++)
+                auto it = entities_.find(entityid);
+
+                if(it != entities_.end() )
                 {
-                    if(e->get()->GetEntityId() == entityid)
-                    {
-                        entities_.erase(e);
-                    }
+                    entities_.erase(it);
                 }
             }
 
@@ -42,12 +51,12 @@ namespace ecs
             }
 
         private:
-            EntityId GetEntityId()
+            const EntityId GetEntityId() const
             {
                 return entities_.size() + 1;
             }
 
-            std::vector<Entity_Ptr> entities_;
+            std::unordered_map<EntityId, Entity_Ptr> entities_;
     };
 }
 

@@ -5,19 +5,17 @@
 
 namespace ecs
 {
-    using SystemTypeId = TypeId;
-
     template<typename T>
     class System : public ISystem
     {
         public:
-            System(SystemId systemid) 
-                : ISystem(systemid) 
-            {
-            }
+            System() {}
 
             static const SystemTypeId SYSTEM_TYPE_ID;
     };
+
+    template<typename T>
+    const SystemTypeId System<T>::SYSTEM_TYPE_ID = 0;
 }
 
 #endif // SYSTEM_HPP

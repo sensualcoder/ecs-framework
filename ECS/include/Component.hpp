@@ -18,6 +18,9 @@ namespace ecs
 
             static const ComponentTypeId COMPONENT_TYPE_ID;
     };
+
+    template<typename T>
+    const ComponentTypeId Component<T>::COMPONENT_TYPE_ID = 0;
 }
 
 #endif // COMPONENT_HPP

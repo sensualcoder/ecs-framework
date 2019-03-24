@@ -8,20 +8,8 @@ namespace ecs
     class ISystem
     {
         public:
-            ISystem(SystemId systemid)
-                : systemid_(systemid)
-            {
-            }
-
+            ISystem() {}
             virtual ~ISystem() {}
-
-            inline SystemId GetSystemId()
-            {
-                return systemid_;
-            }
-
-        private:
-            const SystemId systemid_;
     };
 }
 

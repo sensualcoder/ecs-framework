@@ -28,10 +28,8 @@ class MessageSystem
       public ecs::IObserver
 {
     public:
-        MessageSystem(ecs::SystemId systemid) 
-            : System(systemid) 
-        {
-        }
+        MessageSystem() = default;
+        MessageSystem(const MessageSystem& rhs) = delete;
 
         void OnNotify(ecs::IEvent& event)
         {
@@ -52,6 +50,8 @@ class MessageComponent
         {
         }
 
+        MessageComponent(const MessageComponent& rhs) = delete;
+
         void SendMessage(const std::string message) const
         {
             MessageEvent event { message };
@@ -64,8 +64,9 @@ class Messager
     : public ecs::Entity<Messager>
 {
     public:
-        Messager(ecs::EntityId entityid)
-            : Entity(entityid)
+        Messager(ecs::EntityId entityid, std::string name)
+            : Entity(entityid),
+                name_(name)
                 
         {
             messagecomponent_ = ecs::ECS::Get()
@@ -73,12 +74,17 @@ class Messager
                                     ->AddComponent<MessageComponent>(this->GetEntityId() );
         }
 
+        Messager(const Messager& rhs) = delete;
+
         void Say(const std::string message) const
         {
-            messagecomponent_->SendMessage(message);
+            std::string msg = name_ + " says: " + message;
+
+            messagecomponent_->SendMessage(msg);
         }
 
     private:
+        std::string name_;
         MessageComponent* messagecomponent_;
 };
 
@@ -93,10 +99,11 @@ int main()
     auto stest = sm->AddSystem<MessageSystem>();
 
     // Init entities
-    auto etest = em->CreateEntity<Messager>();
+    auto etest = em->CreateEntity<Messager>("Tester");
+    auto id = etest->GetEntityId();
 
     // Init components
-    auto ctest = cm->GetComponent<MessageComponent>(etest->GetEntityId() );
+    auto ctest = cm->GetComponent<MessageComponent>(id);
     ctest->AddObserver(stest);
 
     // Execute
@@ -104,9 +111,9 @@ int main()
     etest->Say(message);
 
     // Cleanup
-    em->DestroyAllEntities();
-    cm->RemoveAllComponents();
-    sm->RemoveAllSystems();
+    em->DestroyEntity<Messager>(id);
+    cm->RemoveComponent<MessageComponent>();
+    sm->RemoveSystem<MessageSystem>();
 
     return 0;
 }

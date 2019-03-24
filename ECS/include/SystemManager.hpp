@@ -2,7 +2,7 @@
 #define SYSTEM_MANAGER_HPP
 
 #include <memory>
-#include <vector>
+#include <unordered_map>
 
 #include "ISystem.hpp"
 
@@ -13,15 +13,36 @@ namespace ecs
     class SystemManager
     {
         public:
+            template<typename T>
+            T* GetSystem()
+            {
+                auto it = systems_.find(T::SYSTEM_TYPE_ID);
+
+                return it != systems_.end() 
+                        ? (T*)it->second.get() 
+                        : nullptr;
+            }
+
             template<typename T, typename... ARGS>
             T* AddSystem(ARGS&&... args)
             {
-                SystemId systemid = this->GetSystemId();
+                const SystemTypeId stid = T::SYSTEM_TYPE_ID;
 
-                ISystem* sys = new T(systemid, std::forward<ARGS>(args)...);
-                systems_.push_back(System_Ptr(sys) );
+                ISystem* sys = new T(std::forward<ARGS>(args)...);
+                systems_[stid] = System_Ptr(sys);
 
                 return static_cast<T*>(sys);
+            }
+
+            template<typename T>
+            void RemoveSystem()
+            {
+                auto it = systems_.find(T::SYSTEM_TYPE_ID);
+
+                if(it != systems_.end() )
+                {
+                    systems_.erase(it);
+                }
             }
 
             void RemoveAllSystems()
@@ -30,12 +51,7 @@ namespace ecs
             }
 
         private:
-            SystemId GetSystemId() const
-            {
-                return systems_.size() + 1;
-            }
-
-            std::vector<System_Ptr> systems_;
+            std::unordered_map<SystemTypeId, System_Ptr> systems_;
     };
 }
 

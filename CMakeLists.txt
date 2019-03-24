@@ -6,10 +6,14 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(${PROJECT_SOURCE_DIR}/ECS/include)
 add_subdirectory(ECS)
 
+if(BUILD_MAC)
+    set(CMAKE_CROSSCOMPILING On)
+    set(CMAKE_CXX_COMPILER_TARGET "x86_64-apple-darwin-macho")
+endif()
+
 if(BUILD_DRIVER)
     set(SOURCES main.cpp)
 
     add_executable(ECSDriver ${SOURCES})
     target_link_libraries(ECSDriver ECS)
 endif()
-
