@@ -1,7 +1,7 @@
 #ifndef I_SUBJECT_HPP
 #define I_SUBJECT_HPP
 
-#include <vector>
+#include <list>
 
 #include "IEvent.hpp"
 #include "IObserver.hpp"
@@ -41,7 +41,7 @@ namespace ecs
             }
 
         private:
-            std::vector<IObserver*> observers_;
+            std::list<IObserver*> observers_;
     };
 }
 

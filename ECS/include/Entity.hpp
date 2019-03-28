@@ -5,8 +5,6 @@
 
 namespace ecs
 {
-    using EntityTypeId = TypeId;
-
     template<typename T>
     class Entity : public IEntity
     {
@@ -21,4 +19,3 @@ namespace ecs
 }
 
 #endif // ENTITY_HPP
-

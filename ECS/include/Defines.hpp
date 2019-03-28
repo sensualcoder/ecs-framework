@@ -6,14 +6,18 @@
 namespace ecs
 {
     using TypeId = size_t;
+
+    using EventId = TypeId;
+    using EventTypeId = TypeId;
+
+    using SystemId = TypeId;
+    using SystemTypeId = TypeId;
     
     using ComponentId = TypeId;
     using ComponentTypeId = TypeId;
     
     using EntityId = TypeId;
-    
-    using SystemId = TypeId;
-    using SystemTypeId = TypeId;
+    using EntityTypeId = TypeId;
 }
 
 #endif

@@ -18,10 +18,23 @@ namespace ecs
             template<typename T>
             T* GetComponent(const EntityId entityid)
             {
+                // Check of component is in the entity map
+                auto cem = componententitymap_.find(T::COMPONENT_TYPE_ID);
+
+                if(cem == componententitymap_.end() )
+                    return nullptr;
+
+                // Check if entity is mapped to the component
+                auto eid = std::find(cem->second.begin(), cem->second.end(), entityid);
+
+                if(eid == cem->second.end() )
+                    return nullptr;
+
+                // Get component pointer
                 auto it = components_.find(T::COMPONENT_TYPE_ID);
 
-                return it != components_.end() 
-                        ? (T*)it->second.get() 
+                return it != components_.end()
+                        ? (T*)it->second.get()
                         : nullptr;
             }
 
@@ -78,7 +91,7 @@ namespace ecs
             }
 
         private:
-            const ComponentId GetComponentId() const
+            ComponentId GetComponentId() const
             {
                 return components_.size() + 1;
             }

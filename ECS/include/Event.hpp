@@ -1,30 +1,26 @@
 #ifndef EVENT_HPP
 #define EVENT_HPP
 
+#include <typeinfo>
+
 #include "IEvent.hpp"
 
 namespace ecs
 {
-    using EventTypeId = TypeId;
-
     template<typename T>
     class Event : public IEvent
     {
         public:
-            Event(EventTypeId eventtypeid) 
-                : eventtypeid_(eventtypeid) 
+            Event() 
+                : IEvent(EVENT_TYPE_ID) 
             {
             }
 
-            inline EventTypeId GetEventType() const 
-            { 
-                return eventtypeid_; 
-            }
-
-        private:
-            EventTypeId eventtypeid_;
+            static const EventTypeId EVENT_TYPE_ID;
     };
+
+    template<typename T>
+    const EventTypeId Event<T>::EVENT_TYPE_ID { typeid(T).hash_code() };
 }
 
 #endif // EVENT_HPP
-

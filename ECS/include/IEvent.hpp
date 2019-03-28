@@ -5,11 +5,24 @@
 
 namespace ecs
 {
-    struct IEvent
+    class IEvent
     {
-        virtual TypeId GetEventType() const = 0;
+        public:
+            IEvent(EventTypeId eventtypeid)
+                : eventtypeid_(eventtypeid)
+            {
+            }
+
+            virtual ~IEvent() {}
+
+            inline EventTypeId GetEventTypeId() const
+            {
+                return eventtypeid_;
+            }
+
+        private:
+            const EventTypeId eventtypeid_;
     };
 }
 
 #endif // I_EVENT_HPP
-

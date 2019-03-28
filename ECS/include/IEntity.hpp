@@ -26,4 +26,3 @@ namespace ecs
 }
 
 #endif // I_ENTITY_HPP
-

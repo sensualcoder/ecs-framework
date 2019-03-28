@@ -15,8 +15,7 @@ class MessageEvent
 {
     public:
         MessageEvent(std::string message) 
-            : Event(EventType::MESSAGE_EVENT),
-                message_(message)
+            : message_(message)
         {
         }
 
@@ -33,9 +32,9 @@ class MessageSystem
 
         void OnNotify(ecs::IEvent& event)
         {
-            if(event.GetEventType() == EventType::MESSAGE_EVENT)
+            if(MessageEvent* me = dynamic_cast<MessageEvent*>(&event) )
             {
-                printf("%s\n", static_cast<MessageEvent*>(&event)->message_.c_str() );
+                printf("%s\n", me->message_.c_str() );
             }
         }
 };
@@ -108,6 +107,11 @@ int main()
 
     // Execute
     std::string message = "Hello, world!";
+    MessageEvent evtest { "MessageSystem says: " + message };
+    stest->OnNotify(evtest);
+
+    ctest->SendMessage("MessageComponent says: " + message);
+
     etest->Say(message);
 
     // Cleanup

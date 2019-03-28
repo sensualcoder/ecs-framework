@@ -51,7 +51,7 @@ namespace ecs
             }
 
         private:
-            const EntityId GetEntityId() const
+            EntityId GetEntityId() const
             {
                 return entities_.size() + 1;
             }
