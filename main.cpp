@@ -30,18 +30,19 @@ class MessageSystem
         MessageSystem() = default;
         MessageSystem(const MessageSystem& rhs) = delete;
 
-        void OnNotify(ecs::IEvent& event)
+        void OnNotify(ecs::IEvent* event)
         {
-            if(MessageEvent* me = dynamic_cast<MessageEvent*>(&event) )
+            if(event->GetEventTypeId() == MessageEvent::EVENT_TYPE_ID)
             {
-                printf("%s\n", me->message_.c_str() );
+                printf("%s\n", static_cast<MessageEvent*>(event)->message_.c_str() );
             }
         }
+
+        void Update() {}
 };
 
 class MessageComponent 
-    : public ecs::Component<MessageComponent>, 
-      public ecs::ISubject
+    : public ecs::Component<MessageComponent>
 {
     public:
         MessageComponent(ecs::ComponentId componentid) 
@@ -51,11 +52,9 @@ class MessageComponent
 
         MessageComponent(const MessageComponent& rhs) = delete;
 
-        void SendMessage(const std::string message) const
+        void SendMessage(const std::string message)
         {
-            MessageEvent event { message };
-
-            this->Notify(event);
+            ecs::ECS::Get()->SendEvent<MessageEvent>(message);
         }
 };
 
@@ -103,12 +102,14 @@ int main()
 
     // Init components
     auto ctest = cm->GetComponent<MessageComponent>(id);
-    ctest->AddObserver(stest);
+
+    // Init observers
+    ecs->GetEventHandler()->AddObserver(stest);
 
     // Execute
     std::string message = "Hello, world!";
     MessageEvent evtest { "MessageSystem says: " + message };
-    stest->OnNotify(evtest);
+    stest->OnNotify(&evtest);
 
     ctest->SendMessage("MessageComponent says: " + message);
 

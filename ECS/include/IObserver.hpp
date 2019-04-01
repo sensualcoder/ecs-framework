@@ -8,7 +8,7 @@ namespace ecs
     struct IObserver
     {
         virtual ~IObserver() {}
-        virtual void OnNotify(IEvent& event) = 0;
+        virtual void OnNotify(IEvent* event) = 0;
     };
 }
 

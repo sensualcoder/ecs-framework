@@ -50,6 +50,14 @@ namespace ecs
                 systems_.clear();
             }
 
+            void Update()
+            {
+                for(auto sys = systems_.begin(); sys != systems_.end(); sys++)
+                {
+                    sys->second->Update();
+                }
+            }
+
         private:
             std::unordered_map<SystemTypeId, System_Ptr> systems_;
     };

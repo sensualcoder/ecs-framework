@@ -7,6 +7,8 @@
 #include "EntityManager.hpp"
 #include "SystemManager.hpp"
 
+#include "EventHandler.hpp"
+
 #include "Component.hpp"
 #include "Entity.hpp"
 #include "Event.hpp"
@@ -22,7 +24,8 @@ namespace ecs
             ECS() 
                 : componentmanager_(new ComponentManager),
                     entitymanager_(new EntityManager),
-                    systemmanager_(new SystemManager) 
+                    systemmanager_(new SystemManager),
+                    eventhandler_(new EventHandler)
             {
             }
 
@@ -47,10 +50,22 @@ namespace ecs
                 return systemmanager_.get(); 
             }
 
+            inline EventHandler* GetEventHandler()
+            {
+                return eventhandler_.get();
+            }
+
+            template<typename T, typename... ARGS>
+            void SendEvent(ARGS... args)
+            {
+                eventhandler_->Send<T>(std::forward<ARGS>(args)...);
+            }
+
         private:
             std::unique_ptr<ComponentManager> componentmanager_;
             std::unique_ptr<EntityManager> entitymanager_;
             std::unique_ptr<SystemManager> systemmanager_;
+            std::unique_ptr<EventHandler> eventhandler_;
     };
 }
 

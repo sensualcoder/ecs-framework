@@ -32,11 +32,11 @@ namespace ecs
                 observers_.clear();
             }
 
-            void Notify(IEvent& event) const
+            void Notify(IEvent* event)
             {
-                for(auto obs : observers_)
+                for(auto obs = observers_.begin(); obs != observers_.end(); obs++)
                 {
-                    obs->OnNotify(event);
+                    (*obs)->OnNotify(event);
                 }
             }
 
