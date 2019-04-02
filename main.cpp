@@ -23,8 +23,7 @@ class MessageEvent
 };
 
 class MessageSystem 
-    : public ecs::System<MessageSystem>, 
-      public ecs::IObserver
+    : public ecs::System<MessageSystem>
 {
     public:
         MessageSystem() = default;
