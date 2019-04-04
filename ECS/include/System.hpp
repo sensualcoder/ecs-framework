@@ -8,8 +8,7 @@ namespace ecs
 {
     template<typename T>
     class System 
-        : public ISystem,
-            public IObserver
+        : public ISystem
     {
         public:
             System() {}

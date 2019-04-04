@@ -1,6 +1,7 @@
 #ifndef I_SUBJECT_HPP
 #define I_SUBJECT_HPP
 
+#include <algorithm>
 #include <vector>
 
 #include "IEvent.hpp"

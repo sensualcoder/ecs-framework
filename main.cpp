@@ -23,7 +23,8 @@ class MessageEvent
 };
 
 class MessageSystem 
-    : public ecs::System<MessageSystem>
+    : public ecs::System<MessageSystem>,
+        public ecs::IObserver
 {
     public:
         MessageSystem() = default;
@@ -90,6 +91,7 @@ int main()
 
     // Init systems
     auto stest = ecs->AddSystem<MessageSystem>();
+    ecs->AddObserver(stest);
 
     // Init entities
     auto etest = ecs->CreateEntity<Messager>("Tester");

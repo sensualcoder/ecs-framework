@@ -71,13 +71,13 @@ namespace ecs
             template<typename T, typename... ARGS>
             T* AddSystem(ARGS... args)
             {
-                // Create system
-                auto sys = systemmanager_->AddSystem<T>(std::forward<ARGS>(args)...);
+                return systemmanager_->AddSystem<T>(std::forward<ARGS>(args)...);
+            }
 
-                // Add system to event handler observers
-                eventhandler_->AddObserver(sys);
-
-                return sys;
+            template<typename T, typename... ARGS>
+            T* GetSystem(ARGS... args)
+            {
+                return systemmanager_->GetSystem<T>(std::forward<ARGS>(args)...);
             }
 
             template<typename T>
