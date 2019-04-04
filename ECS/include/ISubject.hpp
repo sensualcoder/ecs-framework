@@ -1,7 +1,7 @@
 #ifndef I_SUBJECT_HPP
 #define I_SUBJECT_HPP
 
-#include <list>
+#include <vector>
 
 #include "IEvent.hpp"
 #include "IObserver.hpp"
@@ -18,12 +18,11 @@ namespace ecs
 
             void RemoveObserver(IObserver* observer)
             {
-                for(auto it = observers_.begin(); it != observers_.end(); it++)
+                auto obs = std::find(observers_.begin(), observers_.end(), observer);
+
+                if(obs != observers_.end() )
                 {
-                    if(*it == observer)
-                    {
-                        observers_.erase(it);
-                    }
+                    observers_.erase(obs);
                 }
             }
 
@@ -41,7 +40,7 @@ namespace ecs
             }
 
         private:
-            std::list<IObserver*> observers_;
+            std::vector<IObserver*> observers_;
     };
 }
 

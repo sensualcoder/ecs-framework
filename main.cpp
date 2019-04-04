@@ -67,7 +67,6 @@ class Messager
                 
         {
             messagecomponent_ = ecs::ECS::Get()
-                                    ->GetComponentManager()
                                     ->AddComponent<MessageComponent>(this->GetEntityId() );
         }
 
@@ -88,22 +87,16 @@ class Messager
 int main()
 {
     auto ecs = ecs::ECS::Get();
-    auto cm = ecs->GetComponentManager();
-    auto em = ecs->GetEntityManager();
-    auto sm = ecs->GetSystemManager();
 
     // Init systems
-    auto stest = sm->AddSystem<MessageSystem>();
+    auto stest = ecs->AddSystem<MessageSystem>();
 
     // Init entities
-    auto etest = em->CreateEntity<Messager>("Tester");
+    auto etest = ecs->CreateEntity<Messager>("Tester");
     auto id = etest->GetEntityId();
 
     // Init components
-    auto ctest = cm->GetComponent<MessageComponent>(id);
-
-    // Init observers
-    ecs->GetEventHandler()->AddObserver(stest);
+    auto ctest = ecs->GetComponent<MessageComponent>(id);
 
     // Execute
     std::string message = "Hello, world!";
@@ -115,9 +108,9 @@ int main()
     etest->Say(message);
 
     // Cleanup
-    em->DestroyEntity<Messager>(id);
-    cm->RemoveComponent<MessageComponent>();
-    sm->RemoveSystem<MessageSystem>();
+    ecs->DestroyEntity<Messager>(id);
+    ecs->RemoveComponent<MessageComponent>();
+    ecs->RemoveSystem<MessageSystem>();
 
     return 0;
 }
