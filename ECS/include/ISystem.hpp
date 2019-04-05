@@ -10,8 +10,6 @@ namespace ecs
         public:
             ISystem() {}
             virtual ~ISystem() {}
-
-            virtual void Update() {}
     };
 }
 

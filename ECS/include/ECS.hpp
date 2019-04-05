@@ -45,7 +45,12 @@ namespace ecs
             template<typename T, typename... ARGS>
             void DestroyEntity(ARGS... args)
             {
-                return entitymanager_->DestroyEntity<T>(std::forward<ARGS>(args)...);
+                entitymanager_->DestroyEntity<T>(std::forward<ARGS>(args)...);
+            }
+
+            void DestroyAllEntities()
+            {
+                entitymanager_->DestroyAllEntities();
             }
 
             // Component subsystem
@@ -64,7 +69,12 @@ namespace ecs
             template<typename T, typename... ARGS>
             void RemoveComponent(ARGS... args)
             {
-                return componentmanager_->RemoveComponent<T>(std::forward<ARGS>(args)...);
+                componentmanager_->RemoveComponent<T>(std::forward<ARGS>(args)...);
+            }
+
+            void RemoveAllComponents()
+            {
+                componentmanager_->RemoveAllComponents();
             }
 
             // System subsystem
@@ -83,11 +93,12 @@ namespace ecs
             template<typename T>
             void RemoveSystem()
             {
-                auto sys = systemmanager_->GetSystem<T>();
-
-                eventhandler_->RemoveObserver(sys);
-
                 systemmanager_->RemoveSystem<T>();
+            }
+
+            void RemoveAllSystems()
+            {
+                systemmanager_->RemoveAllSystems();
             }
 
             // EventHandler subsystem
@@ -105,6 +116,11 @@ namespace ecs
             void RemoveObserver(IObserver* observer)
             {
                 eventhandler_->RemoveObserver(observer);
+            }
+
+            void RemoveAllObservers()
+            {
+                eventhandler_->RemoveAllObservers();
             }
 
         private:

@@ -1,88 +1,165 @@
 #include <cstdio>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "ECS.hpp"
 
-enum EventType
+struct AttackEvent
+    : public ecs::Event<AttackEvent>
 {
-    INVALID_EVENT = 0,
-    MESSAGE_EVENT
+    AttackEvent(size_t damage, size_t targetindex) 
+        : damage_(damage), targetindex_(targetindex)
+    {}
+
+    const size_t damage_;
+    const size_t targetindex_;
 };
 
-class MessageEvent 
-    : public ecs::Event<MessageEvent>
+class CombatEntity
+    : public ecs::Entity<CombatEntity>
 {
     public:
-        MessageEvent(std::string message) 
-            : message_(message)
+        CombatEntity(ecs::EntityId entityid, size_t health) 
+            : Entity(entityid), 
+                health_(health)
+        {}
+
+        inline size_t GetHealth()
         {
+            return health_;
         }
 
-        const std::string message_;
+        void TakeDamage(size_t damage)
+        {
+            printf("Defender takes %zu damage!\n", damage);
+
+            health_ -= damage;
+        }
+
+    protected:
+        size_t health_;
 };
 
-class MessageSystem 
-    : public ecs::System<MessageSystem>,
-        public ecs::IObserver
+
+class BattleScene
 {
     public:
-        MessageSystem() = default;
-        MessageSystem(const MessageSystem& rhs) = delete;
-
-        void OnNotify(ecs::IEvent* event)
+        void AddOpponent(CombatEntity* opponent)
         {
-            if(event->GetEventTypeId() == MessageEvent::EVENT_TYPE_ID)
+            opponents_.push_back(opponent);
+        }
+
+        CombatEntity* GetOpponent(size_t index)
+        {
+            return opponents_[index];
+        }
+
+        void RemoveOpponent(CombatEntity* opponent)
+        {
+            auto it = std::find(opponents_.begin(), opponents_.end(), opponent);
+
+            if(it != opponents_.end() )
             {
-                printf("%s\n", static_cast<MessageEvent*>(event)->message_.c_str() );
+                opponents_.erase(it);
             }
         }
 
-        void Update() {}
+        inline size_t GetTargetCount() const
+        {
+            return opponents_.size();
+        }
+    
+    private:
+        std::vector<CombatEntity*> opponents_;
 };
 
-class MessageComponent 
-    : public ecs::Component<MessageComponent>
+class BattleSystem
+    : public ecs::System<BattleSystem>,
+        public ecs::IObserver
 {
     public:
-        MessageComponent(ecs::ComponentId componentid) 
-            : Component(componentid) 
+        BattleSystem() {}
+
+        BattleScene* CreateBattleScene()
         {
+            if(battlescene_.get() == nullptr)
+            {
+                battlescene_ = std::make_unique<BattleScene>();
+            }
+
+            return battlescene_.get();
         }
 
-        MessageComponent(const MessageComponent& rhs) = delete;
-
-        void SendMessage(const std::string message)
+        void DestroyBattleScene()
         {
-            ecs::ECS::Get()->SendEvent<MessageEvent>(message);
+            battlescene_ = nullptr;
         }
-};
 
-class Messager 
-    : public ecs::Entity<Messager>
-{
-    public:
-        Messager(ecs::EntityId entityid, std::string name)
-            : Entity(entityid),
-                name_(name)
+        void OnNotify(ecs::IEvent* event)
+        {
+            if(event->GetEventTypeId() == AttackEvent::EVENT_TYPE_ID)
+            {
+                auto attack = static_cast<AttackEvent*>(event);
+
+                printf("Attacker attacks target %zu!\n", attack->targetindex_+1);
+
+                if(attack->targetindex_ > battlescene_->GetTargetCount() )
+                {
+                    battlescene_->GetOpponent(battlescene_->GetTargetCount() -1)->TakeDamage(attack->damage_);
+                }
+                else
+                {
+                    battlescene_->GetOpponent(attack->targetindex_)->TakeDamage(attack->damage_);
+                }
                 
-        {
-            messagecomponent_ = ecs::ECS::Get()
-                                    ->AddComponent<MessageComponent>(this->GetEntityId() );
-        }
-
-        Messager(const Messager& rhs) = delete;
-
-        void Say(const std::string message) const
-        {
-            std::string msg = name_ + " says: " + message;
-
-            messagecomponent_->SendMessage(msg);
+            }
         }
 
     private:
-        std::string name_;
-        MessageComponent* messagecomponent_;
+        std::unique_ptr<BattleScene> battlescene_;
+};
+
+class AttackComponent
+    : public ecs::Component<AttackComponent>
+{
+    public:
+        AttackComponent(ecs::ComponentId componentid, size_t damage)
+            : Component(componentid),   
+                damage_(damage)
+        {}
+
+        void DealDamage(size_t target)
+        {
+            ecs::ECS::Get()->SendEvent<AttackEvent>(damage_, target);
+        }
+
+    private:
+        size_t damage_;
+};
+
+class Attacker
+    : public CombatEntity
+{
+    public:
+        Attacker(ecs::EntityId entityid, size_t health, size_t damage)
+            : CombatEntity(entityid, health)
+        {
+            attack_ = ecs::ECS::Get()->AddComponent<AttackComponent>(entityid, damage);
+        }
+
+        inline AttackComponent* Attack()
+        {
+            return attack_;
+        }
+
+    protected:
+        AttackComponent* attack_;
+};
+
+class Defender
+    : public CombatEntity
+{
 };
 
 int main()
@@ -90,29 +167,30 @@ int main()
     auto ecs = ecs::ECS::Get();
 
     // Init systems
-    auto stest = ecs->AddSystem<MessageSystem>();
-    ecs->AddObserver(stest);
-
-    // Init entities
-    auto etest = ecs->CreateEntity<Messager>("Tester");
-    auto id = etest->GetEntityId();
+    auto battlesys = ecs->AddSystem<BattleSystem>();
+    ecs->AddObserver(battlesys);
 
     // Init components
-    auto ctest = ecs->GetComponent<MessageComponent>(id);
+
+    // Init entities
+    auto attacker = ecs->CreateEntity<Attacker>(5, 1); // Attacker, EntityId == 1
+    auto defender = ecs->CreateEntity<CombatEntity>(5); // Defender, EtntiyId == 2
 
     // Execute
-    std::string message = "Hello, world!";
-    MessageEvent evtest { "MessageSystem says: " + message };
-    stest->OnNotify(&evtest);
+    auto battlescene = battlesys->CreateBattleScene();
+    battlescene->AddOpponent(defender);
 
-    ctest->SendMessage("MessageComponent says: " + message);
+    printf("Defender health: %zu\n", defender->GetHealth() );
 
-    etest->Say(message);
+    attacker->Attack()->DealDamage(0);
+
+    printf("Defender remaining health: %zu\n", defender->GetHealth() );
 
     // Cleanup
-    ecs->DestroyEntity<Messager>(id);
-    ecs->RemoveComponent<MessageComponent>();
-    ecs->RemoveSystem<MessageSystem>();
+    ecs->DestroyEntity<Attacker>(1);
+    ecs->DestroyEntity<CombatEntity>(2);
+    ecs->RemoveComponent<AttackComponent>();
+    ecs->RemoveSystem<BattleSystem>();
 
     return 0;
 }
