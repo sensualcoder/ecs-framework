@@ -14,8 +14,11 @@ if(BUILD_MAC)
 endif()
 
 if(BUILD_DRIVER)
+    include_directories(${PROJECT_SOURCE_DIR}/Driver/include)
+    add_subdirectory(Driver)
+
     set(SOURCES main.cpp)
 
     add_executable(ECSDriver ${SOURCES})
-    target_link_libraries(ECSDriver ECS)
+    target_link_libraries(ECSDriver ECS Driver)
 endif()

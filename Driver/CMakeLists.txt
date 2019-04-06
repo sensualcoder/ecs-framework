@@ -1,0 +1,6 @@
+include_directories(${PROJECT_SOURCE_DIR}/ECS/include)
+include_directories(include)
+
+set(SOURCES src/Driver.cpp)
+
+add_library(Driver STATIC ${SOURCES})
