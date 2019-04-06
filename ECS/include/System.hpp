@@ -1,6 +1,8 @@
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
 
+#include <typeinfo>
+
 #include "IObserver.hpp"
 #include "ISystem.hpp"
 
@@ -17,7 +19,7 @@ namespace ecs
     };
 
     template<typename T>
-    const SystemTypeId System<T>::SYSTEM_TYPE_ID = 0;
+    const SystemTypeId System<T>::SYSTEM_TYPE_ID { typeid(T).hash_code() };
 }
 
 #endif // SYSTEM_HPP

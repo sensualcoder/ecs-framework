@@ -1,6 +1,8 @@
 #ifndef COMPONENT_HPP
 #define COMPONENT_HPP
 
+#include <typeinfo>
+
 #include "IComponent.hpp"
 
 namespace ecs
@@ -20,7 +22,7 @@ namespace ecs
     };
 
     template<typename T>
-    const ComponentTypeId Component<T>::COMPONENT_TYPE_ID = 0;
+    const ComponentTypeId Component<T>::COMPONENT_TYPE_ID { typeid(T).hash_code() };
 }
 
 #endif // COMPONENT_HPP
