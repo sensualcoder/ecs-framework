@@ -16,24 +16,43 @@ namespace driver
     class BattleScene
     {
         public:
-            void AddOpponent(CombatEntity* opponent)
+            template<typename T, typename...ARGS>
+            void AddOpponent(ARGS... args)
             {
+                auto opponent = ecs::ECS::Get()->CreateEntity<T>(std::forward<ARGS>(args)...);
                 opponents_.push_back(opponent);
             }
 
             CombatEntity* GetOpponent(size_t index)
             {
+                if(index > opponents_.size() )
+                {
+                    return nullptr;
+                }
+
                 return opponents_[index];
             }
 
-            void RemoveOpponent(CombatEntity* opponent)
+            template<typename T>
+            void RemoveOpponent(T* opponent)
             {
                 auto it = std::find(opponents_.begin(), opponents_.end(), opponent);
 
                 if(it != opponents_.end() )
                 {
                     opponents_.erase(it);
+                    ecs::ECS::Get()->DestroyEntity<T>(opponent->GetEntityId() );
                 }
+            }
+
+            auto begin()
+            {
+                return opponents_.begin();
+            }
+
+            auto end()
+            {
+                return opponents_.end();
             }
 
             inline size_t GetTargetCount() const
@@ -75,15 +94,23 @@ namespace driver
 
                     printf("Attacker attacks target %zu!\n", attack->targetindex_+1);
 
-                    if(attack->targetindex_ > battlescene_->GetTargetCount() )
+                    if(attack->targetindex_ >= battlescene_->GetTargetCount() )
                     {
-                        battlescene_->GetOpponent(battlescene_->GetTargetCount() -1)->TakeDamage(attack->damage_);
+                        printf("Target doesn't exist, targeting next\n");
+                        battlescene_->GetOpponent(battlescene_->GetTargetCount() - 1)->TakeDamage(attack->damage_);
                     }
                     else
                     {
                         battlescene_->GetOpponent(attack->targetindex_)->TakeDamage(attack->damage_);
                     }
-                    
+                }
+                else if(event->GetEventTypeId() == EntityDieEvent::EVENT_TYPE_ID)
+                {
+                    auto die = static_cast<EntityDieEvent*>(event);
+
+                    auto entitytodie = static_cast<CombatEntity*>(die->entity_);
+
+                    battlescene_->RemoveOpponent(entitytodie);
                 }
             }
 

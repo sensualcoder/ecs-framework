@@ -17,7 +17,7 @@ namespace driver
                     damage_(damage)
             {}
 
-            void DealDamage(size_t target)
+            void Attack(size_t target)
             {
                 ecs::ECS::Get()->SendEvent<AttackEvent>(damage_, target);
             }

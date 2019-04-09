@@ -15,6 +15,16 @@ namespace driver
         const size_t damage_;
         const size_t targetindex_;
     };   
+
+    struct EntityDieEvent
+        : public ecs::Event<EntityDieEvent>
+    {
+        EntityDieEvent(ecs::IEntity* entity)
+            : entity_(entity)
+        {}
+
+        ecs::IEntity* entity_;
+    };
 }
 
 #endif // EVENT_TYPES_HPP

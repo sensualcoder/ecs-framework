@@ -15,26 +15,25 @@ namespace driver
         auto battlesys = ecs->AddSystem<BattleSystem>();
         ecs->AddObserver(battlesys);
 
-        // Init components
-
         // Init entities
-        auto attacker = ecs->CreateEntity<Attacker>(5, 1); // Attacker, EntityId == 1
-        auto defender = ecs->CreateEntity<CombatEntity>(5); // Defender, EtntiyId == 2
+        auto attacker = ecs->CreateEntity<Attacker>("Attacker", 5, 1); // Attacker, EntityId == 1
 
         // Execute
         auto battlescene = battlesys->CreateBattleScene();
-        battlescene->AddOpponent(defender);
+        battlescene->AddOpponent<CombatEntity>("Defender1", 5);
+        battlescene->AddOpponent<CombatEntity>("Defender2", 5);
+        battlescene->AddOpponent<CombatEntity>("Defender3", 5);
 
-        printf("Defender health: %zu\n", defender->GetHealth() );
+        for(auto opponent : *battlescene)
+        {
+            printf("Enemy %s appears! Has %d HP\n", opponent->GetName().c_str(), opponent->GetHealth() );
+        }
 
-        attacker->Attack()->DealDamage(0);
-
-        printf("Defender remaining health: %zu\n", defender->GetHealth() );
-
-        // Cleanup
-        ecs->DestroyEntity<Attacker>(attacker->GetEntityId() );
-        ecs->DestroyEntity<CombatEntity>(defender->GetEntityId() );
-        ecs->RemoveComponent<AttackComponent>();
-        ecs->RemoveSystem<BattleSystem>();
+        while(battlescene->GetTargetCount() > 0)
+        {
+            attacker->Attack()->Attack(2);
+        }
+        
+        printf("All enemies defeated!\n");
     }
 }

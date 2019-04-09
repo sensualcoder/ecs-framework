@@ -4,3 +4,4 @@ include_directories(include)
 set(SOURCES src/Driver.cpp)
 
 add_library(Driver STATIC ${SOURCES})
+target_link_libraries(Driver SDL2)
