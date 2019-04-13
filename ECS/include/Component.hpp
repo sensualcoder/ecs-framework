@@ -13,10 +13,8 @@ namespace ecs
     class Component : public IComponent
     {
         public:
-            Component(ComponentId componentid) 
-                : IComponent(componentid) 
-            {
-            }
+            Component() {}
+            virtual ~Component() {}
 
             static const ComponentTypeId COMPONENT_TYPE_ID;
     };

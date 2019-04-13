@@ -8,11 +8,7 @@ namespace ecs
     class IEntity
     {
         public:
-            IEntity(EntityId entityid) 
-                : entityid_(entityid) 
-            {
-            }
-
+            IEntity() {}
             virtual ~IEntity() {}
 
             inline EntityId GetEntityId() 
@@ -21,7 +17,9 @@ namespace ecs
             }
 
         private:
-            const EntityId entityid_;
+            EntityId entityid_;
+
+            friend class EntityManager;
     };
 }
 

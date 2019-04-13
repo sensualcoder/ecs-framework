@@ -1,10 +1,12 @@
 #ifndef COMBAT_ENTITY_HPP
 #define COMBAT_ENTITY_HPP
 
-#include <cstdio>
 #include <string>
 
+#include "ECS.hpp"
 #include "Entity.hpp"
+
+#include "EventTypes.hpp"
 
 namespace driver
 {
@@ -12,11 +14,7 @@ namespace driver
     : public ecs::Entity<CombatEntity>
     {
         public:
-            CombatEntity(ecs::EntityId entityid, std::string name, int health) 
-                : Entity(entityid), 
-                    name_(name),
-                    health_(health)
-            {}
+            CombatEntity(std::string name, int health, int defense);
 
             inline std::string GetName()
             {
@@ -28,22 +26,17 @@ namespace driver
                 return health_;
             }
 
-            void TakeDamage(size_t damage)
+            inline int GetDefense()
             {
-                printf("%s takes %zu damage!\n", name_.c_str(), damage);
-
-                health_ -= damage;
-
-                if(health_ <= 0)
-                {
-                    printf("%s destroyed!\n", name_.c_str() );
-                    ecs::ECS::Get()->SendEvent<EntityDieEvent>(this);
-                }
+                return defense_;
             }
+
+            void TakeDamage(size_t damage);
 
         protected:
             std::string name_;
             int health_;
+            int defense_;
     };
 }
 

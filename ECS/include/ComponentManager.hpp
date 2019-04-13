@@ -15,6 +15,8 @@ namespace ecs
     class ComponentManager
     {
         public:
+            ComponentManager() : component_id_(0) {}
+
             template<typename T>
             T* GetComponent(const EntityId entityid)
             {
@@ -51,9 +53,9 @@ namespace ecs
                     return (T*)it->second.get();
                 }
 
-                const ComponentId componentid = this->GetComponentId();
+                IComponent* component = new T(std::forward<ARGS>(args)...);
+                component->componentid_ = ++component_id_;
 
-                IComponent* component = new T(componentid, std::forward<ARGS>(args)...);
                 components_[ctid] = Component_Ptr(component);
 
                 componententitymap_[ctid].push_back(entityid);
@@ -91,10 +93,7 @@ namespace ecs
             }
 
         private:
-            ComponentId GetComponentId() const
-            {
-                return components_.size() + 1;
-            }
+            size_t component_id_;
 
             std::unordered_map<ComponentTypeId, Component_Ptr> components_;
             std::unordered_map<ComponentTypeId, std::vector<EntityId>> componententitymap_;

@@ -1,9 +1,12 @@
 #include "Driver.hpp"
 
+#include <iostream>
+
 #include "ECS.hpp"
 
 #include "Attacker.hpp"
 #include "BattleSystem.hpp"
+#include "CombatEntity.hpp"
 
 namespace driver
 {
@@ -20,20 +23,8 @@ namespace driver
 
         // Execute
         auto battlescene = battlesys->CreateBattleScene();
-        battlescene->AddOpponent<CombatEntity>("Defender1", 5);
-        battlescene->AddOpponent<CombatEntity>("Defender2", 5);
-        battlescene->AddOpponent<CombatEntity>("Defender3", 5);
+        battlescene->Init();
 
-        for(auto opponent : *battlescene)
-        {
-            printf("Enemy %s appears! Has %d HP\n", opponent->GetName().c_str(), opponent->GetHealth() );
-        }
-
-        while(battlescene->GetTargetCount() > 0)
-        {
-            attacker->Attack()->Attack(2);
-        }
-        
-        printf("All enemies defeated!\n");
+        battlescene->Start(attacker);
     }
 }

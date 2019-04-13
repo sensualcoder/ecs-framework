@@ -8,11 +8,7 @@ namespace ecs
     class IComponent
     {
         public:
-            IComponent(ComponentId componentid)
-                : componentid_(componentid)
-            {
-            }
-
+            IComponent() {}
             virtual ~IComponent() {}
 
             inline ComponentId GetComponentId() const
@@ -21,7 +17,9 @@ namespace ecs
             }
 
         private:
-            const ComponentId componentid_;
+            ComponentId componentid_;
+
+            friend class ComponentManager;
     };
 }
 

@@ -13,6 +13,8 @@ namespace ecs
     class EntityManager
     {
         public:
+            EntityManager() : entity_id_(0) {}
+
             template<typename T>
             T* GetEntity(EntityId entityid)
             {
@@ -26,9 +28,11 @@ namespace ecs
             template<typename T, typename... ARGS>
             T* CreateEntity(ARGS&&... args)
             {
-                EntityId entityid = this->GetEntityId();
+                EntityId entityid = ++entity_id_;
 
-                IEntity* entity = new T(entityid, std::forward<ARGS>(args)...);
+                IEntity* entity = new T(std::forward<ARGS>(args)...);
+                entity->entityid_ = entityid;
+                
                 entities_[entityid] = Entity_Ptr(entity);
 
                 return static_cast<T*>(entity);
@@ -51,10 +55,7 @@ namespace ecs
             }
 
         private:
-            EntityId GetEntityId() const
-            {
-                return entities_.size() + 1;
-            }
+            size_t entity_id_;
 
             std::unordered_map<EntityId, Entity_Ptr> entities_;
     };

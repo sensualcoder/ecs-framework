@@ -35,6 +35,7 @@
         "utility": "cpp",
         "deque": "cpp",
         "list": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "iostream": "cpp"
     }
 }

@@ -3,8 +3,6 @@
 
 #include <string>
 
-#include "ECS.hpp"
-
 #include "AttackComponent.hpp"
 #include "CombatEntity.hpp"
 
@@ -14,11 +12,7 @@ namespace driver
     : public CombatEntity
     {
         public:
-            Attacker(ecs::EntityId entityid, std::string name, size_t health, size_t damage)
-                : CombatEntity(entityid, name, health)
-            {
-                attack_ = ecs::ECS::Get()->AddComponent<AttackComponent>(entityid, damage);
-            }
+            Attacker( std::string name, size_t health, size_t damage);
 
             inline AttackComponent* Attack()
             {

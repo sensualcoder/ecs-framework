@@ -3,6 +3,8 @@
 
 #include "Event.hpp"
 
+#include "IEntity.hpp"
+
 namespace driver
 {
     struct AttackEvent
@@ -24,6 +26,16 @@ namespace driver
         {}
 
         ecs::IEntity* entity_;
+    };
+
+    struct BattleWinEvent
+        : public ecs::Event<BattleWinEvent>
+    {
+    };
+
+    struct BattleFleeEvent
+        : public ecs::Event<BattleFleeEvent>
+    {
     };
 }
 

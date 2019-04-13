@@ -11,10 +11,8 @@ namespace ecs
     class Entity : public IEntity
     {
         public:
-            Entity(EntityId entityid) 
-                : IEntity(entityid)
-            {
-            }
+            Entity() {}
+            virtual ~Entity() {}
 
             static const EntityTypeId ENTITY_TYPE_ID;
     };
