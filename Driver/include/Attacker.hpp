@@ -12,14 +12,15 @@ namespace driver
     : public CombatEntity
     {
         public:
-            Attacker( std::string name, size_t health, size_t damage);
+            Attacker(std::string name, size_t health, size_t defense, size_t damage);
 
-            inline AttackComponent* Attack()
+            inline void Attack(CombatEntity* target)
             {
-                return attack_ != nullptr ? attack_ : nullptr;
+                attack_->Attack(damage_, target);
             }
 
         protected:
+            size_t damage_;
             AttackComponent* attack_;
     };
 }

@@ -4,9 +4,9 @@
 
 namespace driver
 {
-    Attacker::Attacker(std::string name, size_t health, size_t damage)
-        : CombatEntity(name, health, 0)
+    Attacker::Attacker(std::string name, size_t health, size_t defense, size_t damage)
+        : CombatEntity(name, health, defense), damage_(damage)
     {
-        attack_ = ecs::ECS::Get()->AddComponent<AttackComponent>(this->GetEntityId(), damage);
+        attack_ = ecs::ECS::Get()->AddComponent<AttackComponent>(this->GetEntityId() );
     }
 }

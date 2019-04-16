@@ -10,8 +10,7 @@
 
 namespace driver
 {
-    class CombatEntity
-    : public ecs::Entity<CombatEntity>
+    class CombatEntity : public ecs::Entity<CombatEntity>
     {
         public:
             CombatEntity(std::string name, int health, int defense);

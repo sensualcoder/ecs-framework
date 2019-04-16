@@ -4,13 +4,12 @@
 
 namespace driver
 {
-    AttackComponent::AttackComponent(size_t damage)
-        : damage_(damage)
+    AttackComponent::AttackComponent()
     {
     }
 
-    void AttackComponent::Attack(size_t target)
+    void AttackComponent::Attack(size_t damage, CombatEntity* target)
     {
-        ecs::ECS::Get()->SendEvent<AttackEvent>(damage_, target);
+        ecs::ECS::Get()->SendEvent<AttackEvent>(damage, target);
     }
 }

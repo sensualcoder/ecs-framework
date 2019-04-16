@@ -45,7 +45,7 @@ namespace driver
             }
         
         private:
-            std::vector<CombatEntity*> opponents_;
+            std::vector<Attacker*> opponents_;
     };
 }
 

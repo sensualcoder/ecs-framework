@@ -1,41 +1,73 @@
 #ifndef EVENT_TYPES_HPP
 #define EVENT_TYPES_HPP
 
+#include <iostream>
+
 #include "Event.hpp"
 
-#include "IEntity.hpp"
+#include "CombatEventHandler.hpp"
 
 namespace driver
 {
-    struct AttackEvent
-        : public ecs::Event<AttackEvent>
+    // Forward declaration
+    class CombatEntity;
+
+    struct DriverEvent : public ecs::Event<DriverEvent>
     {
-        AttackEvent(size_t damage, size_t targetindex) 
-            : damage_(damage), targetindex_(targetindex)
+        virtual void Handle(CombatEventHandler* handler) = 0;
+    };
+
+    struct AttackEvent : public DriverEvent
+    {
+        AttackEvent(size_t damage, CombatEntity* target) 
+            : damage_(damage), target_(target)
         {}
 
         const size_t damage_;
-        const size_t targetindex_;
+        CombatEntity* target_;
+
+        void Handle(CombatEventHandler* handler)
+        {
+            handler->HandleAttackEvent(this);
+        }
     };   
 
-    struct EntityDieEvent
-        : public ecs::Event<EntityDieEvent>
+    struct EntityDieEvent : public DriverEvent
     {
-        EntityDieEvent(ecs::IEntity* entity)
+        EntityDieEvent(CombatEntity* entity)
             : entity_(entity)
         {}
 
-        ecs::IEntity* entity_;
+        CombatEntity* entity_;
+
+        void Handle(CombatEventHandler* handler)
+        {
+            handler->HandleEntityDieEvent(this);
+        }
     };
 
-    struct BattleWinEvent
-        : public ecs::Event<BattleWinEvent>
+    struct BattleWinEvent : public DriverEvent
     {
+        void Handle(CombatEventHandler* handler)
+        {
+            handler->HandleBattleWinEvent(this);
+        }
     };
 
-    struct BattleFleeEvent
-        : public ecs::Event<BattleFleeEvent>
+    struct BattleLostEvent : public DriverEvent
     {
+        void Handle(CombatEventHandler* handler)
+        {
+            handler->HandleBattleLostEvent(this);
+        }
+    };
+
+    struct BattleFleeEvent : public DriverEvent
+    {
+        void Handle(CombatEventHandler* handler)
+        {
+            handler->HandleBattleFleeEvent(this);
+        }
     };
 }
 

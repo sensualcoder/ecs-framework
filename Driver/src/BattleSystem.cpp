@@ -5,10 +5,7 @@
 // Helper functions
 namespace driver
 {
-    int CalcDamage(int attack_rating, int defense_rating)
-    {
-        return attack_rating - defense_rating;
-    }
+    auto calc_damage = [](int attack, int defense) -> int { return attack - defense; };
 }
 
 // BattleSystem
@@ -33,52 +30,62 @@ namespace driver
         battlescene_ = nullptr;
     }
 
+    void BattleSystem::HandleAttackEvent(ecs::IEvent* event)
+    {
+        auto attack_event = static_cast<AttackEvent*>(event);
+        CombatEntity* target = attack_event->target_;
+
+        if(target == nullptr)
+        {
+            std::cout << "Target doesn't exist, targeting next\n";
+
+            size_t new_target = battlescene_->GetTargetCount() - 1;
+            target = battlescene_->GetOpponent(new_target);
+        }
+        
+        std::cout << "Attacker attacks target " 
+                << target->GetName()
+                << "!\n";
+
+        target->TakeDamage(calc_damage(attack_event->damage_, target->GetDefense() ) );
+    }
+
+    void BattleSystem::HandleEntityDieEvent(ecs::IEvent* event)
+    {
+        auto die_event = static_cast<EntityDieEvent*>(event);
+
+        auto entitytodie = static_cast<CombatEntity*>(die_event->entity_);
+
+        battlescene_->RemoveOpponent(entitytodie);
+    }
+
+    void BattleSystem::HandleBattleWinEvent(ecs::IEvent* event)
+    {
+        std::cout << "All enemies defeated!\n"
+                  << "You won!\n";
+        
+        this->DestroyBattleScene();
+    }
+
+    void BattleSystem::HandleBattleLostEvent(ecs::IEvent* event)
+    {
+        std::cout << "You lost!\n";
+
+        this->DestroyBattleScene();
+    }
+
+    void BattleSystem::HandleBattleFleeEvent(ecs::IEvent* event)
+    {
+        std::cout << "Fled successfully!\n";
+        
+        this->DestroyBattleScene();
+    }
+
     void BattleSystem::OnNotify(ecs::IEvent* event)
     {
-        if(event->GetEventTypeId() == AttackEvent::EVENT_TYPE_ID)
+        if(event->GetEventTypeId() == DriverEvent::EVENT_TYPE_ID)
         {
-            auto attack = static_cast<AttackEvent*>(event);
-            size_t target = attack->targetindex_;
-
-            if(attack->targetindex_ >= battlescene_->GetTargetCount() )
-            {
-                std::cout << "Target doesn't exist, targeting next\n";
-
-                size_t new_target = battlescene_->GetTargetCount() - 1;
-                std::cout << "Attacker attacks target " 
-                      << new_target
-                      << "!\n";
-
-                target = new_target;
-            }
-            else
-            {
-                std::cout << "Attacker attacks target " 
-                      << attack->targetindex_
-                      << "!\n";
-            }
-            auto opponent = battlescene_->GetOpponent(target);
-
-            opponent->TakeDamage(CalcDamage(attack->damage_, opponent->GetDefense() ) );
-        }
-        else if(event->GetEventTypeId() == EntityDieEvent::EVENT_TYPE_ID)
-        {
-            auto die = static_cast<EntityDieEvent*>(event);
-
-            auto entitytodie = static_cast<CombatEntity*>(die->entity_);
-
-            battlescene_->RemoveOpponent(entitytodie);
-        }
-        else if(event->GetEventTypeId() == BattleWinEvent::EVENT_TYPE_ID)
-        {
-            std::cout << "All enemies defeated!\n"
-                      << "You won!\n";
-            this->DestroyBattleScene();
-        }
-        else if(event->GetEventTypeId() == BattleFleeEvent::EVENT_TYPE_ID)
-        {
-            std::cout << "Fled successfully!\n";
-            this->DestroyBattleScene();
+            static_cast<DriverEvent*>(event)->Handle(this);
         }
     }
 }

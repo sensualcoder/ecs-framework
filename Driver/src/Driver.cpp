@@ -12,14 +12,15 @@ namespace driver
 {
     void Driver::Main()
     {
+        // Get ECS instance
         auto ecs = ecs::ECS::Get();
 
         // Init systems
         auto battlesys = ecs->AddSystem<BattleSystem>();
         ecs->AddObserver(battlesys);
 
-        // Init entities
-        auto attacker = ecs->CreateEntity<Attacker>("Attacker", 5, 1); // Attacker, EntityId == 1
+        // Init attacker
+        auto attacker = ecs->CreateEntity<Attacker>("Player", 5, 1, 2);
 
         // Execute
         auto battlescene = battlesys->CreateBattleScene();

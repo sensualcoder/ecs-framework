@@ -8,9 +8,9 @@ namespace driver
 {
     void BattleScene::Init()
     {
-        auto defender1 = ecs::ECS::Get()->CreateEntity<CombatEntity>("Defender1", 5, 0);
-        auto defender2 = ecs::ECS::Get()->CreateEntity<CombatEntity>("Defender2", 5, 0);
-        auto defender3 = ecs::ECS::Get()->CreateEntity<CombatEntity>("Defender3", 5, 1);
+        auto defender1 = ecs::ECS::Get()->CreateEntity<Attacker>("Defender1", 5, 0, 1);
+        auto defender2 = ecs::ECS::Get()->CreateEntity<Attacker>("Defender2", 5, 0, 1);
+        auto defender3 = ecs::ECS::Get()->CreateEntity<Attacker>("Defender3", 5, 1, 2);
 
         opponents_.push_back(defender1);
         opponents_.push_back(defender2);
@@ -22,13 +22,16 @@ namespace driver
         }
     }
 
-    void BattleScene::Start(Attacker* attacker)
+    void BattleScene::Start(Attacker* player)
     {
         bool battle_end = false,
-             battle_fled = false;
+             battle_fled = false,
+             battle_lost = false;
 
         while(!battle_end)
         {
+            std::cout << "\n" << player->GetName() << " HP: " << player->GetHealth() << "\n\n";
+
             this->DisplayOpponents();
 
             std::cout << "\nSelect an option:\n"
@@ -43,21 +46,13 @@ namespace driver
                 case 'A':
                 case 'a':
                 {
-                    this->Attack(attacker);
-                    
-                    if(opponents_.size() == 0)
-                    {
-                        battle_end = true;
-                    }
-                    
+                    this->Attack(player);
                     break;
                 }
                 case 'F':
                 case 'f':
                 {
-                    this->Flee();
-                    battle_end = true;
-                    battle_fled = true;
+                    battle_end = battle_fled = true;
                     break;
                 }
                 default:
@@ -66,27 +61,51 @@ namespace driver
                     break;
                 }
             }
+
+            if(opponents_.size() == 0)
+            {
+                battle_end = true;
+            }
+            else if(!battle_fled && !battle_end)
+            {
+                for(auto op : opponents_)
+                {
+                    std::cout << op->GetName() << " attacks!\n";
+                    op->Attack(player);
+
+                    if(player->GetHealth() == 0)
+                    {
+                        battle_lost = battle_end = true;
+                        break;
+                    }
+                }
+            }
         }
 
-        if(!battle_fled)
+        if(battle_fled)
+        {
+            ecs::ECS::Get()->SendEvent<BattleFleeEvent>();
+        }
+        else if(battle_lost)
+        {
+            ecs::ECS::Get()->SendEvent<BattleLostEvent>();
+        }
+        else
         {
             ecs::ECS::Get()->SendEvent<BattleWinEvent>();
         }
     }
 
-    void BattleScene::Attack(Attacker* attacker)
+    void BattleScene::Attack(Attacker* player)
     {
-        int target;
+        int target_index;
 
         std::cout << "Select a target: ";
-        std::cin >> target;
+        std::cin >> target_index;
 
-        attacker->Attack()->Attack(target);
-    }
+        auto target = this->GetOpponent(target_index);
 
-    void BattleScene::Flee()
-    {
-        ecs::ECS::Get()->SendEvent<BattleFleeEvent>();
+        player->Attack(target);
     }
 
     void BattleScene::DisplayOpponents() const
@@ -102,7 +121,7 @@ namespace driver
 
     CombatEntity* BattleScene::GetOpponent(size_t index)
     {
-        if(index > opponents_.size() )
+        if(index >= opponents_.size() )
         {
             return nullptr;
         }

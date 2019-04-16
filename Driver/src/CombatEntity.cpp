@@ -5,7 +5,7 @@
 namespace driver
 {
     CombatEntity::CombatEntity(std::string name, int health, int defense) 
-        :  name_(name), health_(health), defense_(defense)
+        : name_(name), health_(health), defense_(defense)
     {
     }
 
